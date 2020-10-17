@@ -15,9 +15,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "inc/crc32.h"
-#include "inc/slist.h"
-#include "inc/RingBuffer.h"
+#include "crc32.h"
+#include "slist.h"
+#include "RingBuffer.h"
 
 
 #define NUM_RSSI_BUF_SIZE       (100)

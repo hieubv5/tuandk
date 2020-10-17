@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 
-project (tuandk)
+project (tuanml)
 
-include_directories(./inc ./)
+include_directories(inc)
 
-set(SOURCES src/crc32.c src/RingBuffer.c src/greetings_ja.c src/slist.c main.c)
+set(SOURCES src/main.c src/crc32.c src/RingBuffer.c src/slist.c)
+
+add_executable(tuanml ${SOURCES})

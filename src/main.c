@@ -26,6 +26,7 @@ void GenRSSISample(SRingBuffer_t* buff, uint32_t time)
     for(i = 0; i < time; i++)
     {
         uint8_t u8rand = rand() % ARRAY_LEN(SampleMAC);
+        // printf("rand : %d\n",u8rand);
         SRSSI_t item;
         memcpy(&item.ID[0], &SampleMAC[u8rand], 6);
         item.RSSI = -50 - (rand() % 100);
@@ -36,7 +37,7 @@ void GenRSSISample(SRingBuffer_t* buff, uint32_t time)
 
 /*************************************************/
 static bool DeviceMng_Find(uint32_t hashKey);
-SDevice_t* DeviceMng_Get(uint32_t hashKey);
+SDeviceMng_t* DeviceMng_Get(uint32_t hashKey);
 void DeviceMng_InsertRSSI(SRSSI_t devRssi);
 void DeviceMng_Remove(uint32_t hashKey);
 /*************************************************/
@@ -69,9 +70,6 @@ void DeviceMng_InsertRSSI(SRSSI_t devRssi)
         // Device is existing
         SDeviceMng_t* device = DeviceMng_Get(devRssi.u32Hash);
 
-        // Check device
-        if(device == NULL) return;
-
         // Insert data to device
         BufferPush(&device->DeviceObj.rbRSSIData, &devRssi.RSSI);
     }
@@ -89,12 +87,13 @@ void DeviceMng_InsertRSSI(SRSSI_t devRssi)
                 memset(&gDeviceManager[i].DeviceObj.u8BuffDistance[0], 0, sizeof(gDeviceManager[i].DeviceObj.u8BuffDistance));
                 BufferFlush(&gDeviceManager[i].DeviceObj.rbRSSIData);
                 BufferFlush(&gDeviceManager[i].DeviceObj.rbDistanceData);
+                return;
             }
         }
     }
 }
 
-SDevice_t* DeviceMng_Get(uint32_t hashKey)
+SDeviceMng_t* DeviceMng_Get(uint32_t hashKey)
 {
     for(int i = 0; i < ARRAY_LEN(gDeviceManager); i++)
     {
@@ -137,11 +136,11 @@ int main()
 	memset(&rssiBuffer[0],0,sizeof(rssiBuffer));
 	BufferInit(&rbRssiBuf, &rssiBuffer, 1024, sizeof(SRSSI_t), NULL, NULL, NULL);
 
-	GenRSSISample(&rbRssiBuf, 700);
+	GenRSSISample(&rbRssiBuf, 1024);
 
 	printf("\r\nBuff count: %d", BufferGetCount(&rbRssiBuf));
 
-	for(int i = 0; i < 500; i++)
+	for(int i = 0; i < 10; i++)
 	{
 		SRSSI_t item;
 		BufferPop(&rbRssiBuf, &item);
@@ -152,13 +151,13 @@ int main()
 
 	}
 
-	for(int i = 0; i < 100; i++)
-	{
-		SRSSI_t	device;
-		BufferPop(&gDeviceManager[0].DeviceObj.rbRSSIData, &device);
+	// for(int i = 0; i < 100; i++)
+	// {
+	// 	SRSSI_t	device;
+	// 	BufferPop(&gDeviceManager[0].DeviceObj.rbRSSIData, &device);
 
-		printf("\r\nHaskey = 0x%08x - RSSI = %0.8f", device.u32Hash, device.RSSI);
-	}
+	// 	printf("\r\nHaskey = 0x%08x - RSSI = %0.8f", device.u32Hash, device.RSSI);
+	// }
 
 	return 0;
 }

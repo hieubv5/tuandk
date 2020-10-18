@@ -31,7 +31,8 @@ void GenRSSISample(SRingBuffer_t* buff, uint32_t time)
         memcpy(&item.ID[0], &SampleMAC[u8rand], 6);
         item.RSSI = -50 - (rand() % 100);
         item.u32Hash = crc32(0xFFFFFFFF, &item.ID[0], 6);
-        BufferPush(buff, &item);
+        if(!BufferPush(buff, &item))
+            printf("gen rssi sample fail \n");
     }
 }
 
@@ -61,6 +62,7 @@ void DeviceMng_Init() {
                    NUM_DISTANCE_BUF_SIZE,
                    sizeof(SDistance_t),
                    NULL, NULL, NULL);
+                    
     }
 }
 
@@ -71,7 +73,8 @@ void DeviceMng_InsertRSSI(SRSSI_t devRssi)
         SDeviceMng_t* device = DeviceMng_Get(devRssi.u32Hash);
 
         // Insert data to device
-        BufferPush(&device->DeviceObj.rbRSSIData, &devRssi.RSSI);
+        if(!BufferPush(&device->DeviceObj.rbRSSIData, &devRssi.RSSI))
+            printf("push buff device insert fail \n");
     }
     else {
         // Device not existing
@@ -99,7 +102,7 @@ SDeviceMng_t* DeviceMng_Get(uint32_t hashKey)
     {
         if(hashKey == gDeviceManager[i].DeviceObj.u32Hash && gDeviceManager[i].Used == TRUE)
         {
-            return &gDeviceManager[i].DeviceObj;
+            return &gDeviceManager[i];
         }
     }
     return NULL;
